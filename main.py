@@ -17,3 +17,4 @@ def main():
     pygame.quit()
 
 main()
+#sera was here
