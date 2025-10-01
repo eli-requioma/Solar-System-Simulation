@@ -1,9 +1,21 @@
 import pygame
 import math
+from random import randint
 pygame.init()
 
 WIDTH, HEIGHT = 1500, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+
+ZOOM_SPEED = 0.1 # How much the zoom changes per key press
+MIN_ZOOM = 1.0
+MAX_ZOOM = 4.0
+
+pygame.init()
+GAME_SURFACE = pygame.Surface((WIDTH, HEIGHT))
+
+# Zoom variable
+zoom_factor = 2.0
+
 pygame.display.set_caption("Planet Simulation")
 
 WHITE = (255,255,255)
@@ -21,7 +33,7 @@ class Planet:
     AU = 149.6e6 * 1000 #distance from sun in meters
     G = 6.67426e-11
     SCALE = 15 / AU #approx smaller scale of AU 
-    TIMESTEP = 3600 * 24 # 1 day
+    TIMESTEP = 3600 * 24 * 5 # 5 day
 
     def __init__(self, x, y, radius, color, mass):
         self.x = x
@@ -49,8 +61,21 @@ class Planet:
                 y = y * self.SCALE + HEIGHT / 2
                 updated_points.append((x, y))
             
-            pygame.draw.lines(win, self.color, False, updated_points, 1)
-        pygame.draw.circle(win, self.color, (x,y), self.radius)
+            pygame.draw.lines(GAME_SURFACE, self.color, False, updated_points, 1)
+        pygame.draw.circle(GAME_SURFACE, self.color, (x,y), self.radius)
+
+        new_width = int(WIDTH * zoom_factor)
+        new_height = int(HEIGHT * zoom_factor)
+
+        scaled_surface = pygame.transform.scale(GAME_SURFACE, (new_width, new_height))
+        WIN.fill((50, 50, 50))
+
+        x_offset = (WIDTH - new_width) // 2
+        y_offset = (HEIGHT - new_height) // 2
+    
+        WIN.blit(scaled_surface, (x_offset, y_offset))
+
+        pygame.display.flip()
 
     def attraction(self, other):
         other_x, other_y = other.x, other.y
@@ -66,6 +91,7 @@ class Planet:
         force_x = math.cos(theta) * force
         force_y = math.sin(theta) * force
         return force_x, force_y
+    
     def update_position(self, planets):
         total_fx = total_fy = 0
         for planet in planets:
@@ -81,6 +107,24 @@ class Planet:
         self.x += self.x_vel * self.TIMESTEP
         self.y += self.y_vel * self.TIMESTEP
         self.orbit.append((self.x, self.y))
+
+def input():
+
+    global zoom_factor
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        
+        # --- ZOOM INPUT ---
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_e:
+                zoom_factor += ZOOM_SPEED
+            elif event.key == pygame.K_q:
+                # Zoom Out (Decrease zoom factor)
+                zoom_factor -= ZOOM_SPEED
+    
+    # Clamp the zoom factor to prevent it from going too far
+    zoom_factor = max(MIN_ZOOM, min(MAX_ZOOM, zoom_factor))
 
 def main():
     run = True
@@ -117,7 +161,10 @@ def main():
     planets = [sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
 
     while run:
+
         clock.tick(60)
+
+        input()
         pygame.display.update()
 
         for event in pygame.event.get():
@@ -127,6 +174,7 @@ def main():
         for planet in planets:
             planet.update_position(planets)
             planet.draw(WIN)
+
 
     pygame.quit()
 
