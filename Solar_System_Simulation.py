@@ -3,9 +3,9 @@ import math
 pygame.init()
 
 # Initialize Pygame window
-WIDTH, HEIGHT = 3000, 1600
+WIDTH, HEIGHT = 2750, 1200
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Planet Simulation")
+pygame.display.set_caption("Solar System Simulation")
 
 ZOOM_SPEED = 0.1 # How much the zoom changes per key press
 MIN_ZOOM = 0.5
@@ -32,7 +32,7 @@ DARK_BLUE = (70,104,166)
 class Planet:
     AU = 149.6e6 * 1000
     G = 6.67428e-11
-    SCALE = 40 / AU  # 1AU = 100 pixels
+    SCALE = 40 / AU 
     TIMESTEP = 3600*24 # 1 day
 
     def compute_orbit_path(self):
@@ -194,7 +194,7 @@ def main():
         new_width = int(WIDTH * zoom_factor)
         new_height = int(HEIGHT * zoom_factor)
         scaled_surface = pygame.transform.smoothscale(GAME_SURFACE, (new_width, new_height))
-        WIN.fill((50, 50, 50))
+        WIN.fill((0,0,0))
         x_offset = (WIDTH - new_width) // 2
         y_offset = (HEIGHT - new_height) // 2
         WIN.blit(scaled_surface, (x_offset, y_offset))
