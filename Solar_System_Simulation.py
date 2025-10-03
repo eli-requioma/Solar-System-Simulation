@@ -2,6 +2,7 @@ import pygame
 import math
 pygame.init()
 
+# Initialize Pygame window
 WIDTH, HEIGHT = 3000, 1600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Planet Simulation")
@@ -15,6 +16,7 @@ GAME_SURFACE = pygame.Surface((WIDTH, HEIGHT))
 # Zoom variable
 zoom_factor = 0.5
 
+# Colors
 WHITE = (255,255,255)
 ORANGE = (242,131,32)
 GREY = (141,138,136)
@@ -26,8 +28,7 @@ YELLOW = (243,206,136)
 LIGHT_BLUE = (208,236,240)
 DARK_BLUE = (70,104,166)
 
-FONT = pygame.font.SysFont("comicsans", 16)
-
+# Planet class with important functions
 class Planet:
     AU = 149.6e6 * 1000
     G = 6.67428e-11
@@ -43,11 +44,13 @@ class Planet:
                 updated_points.append((x, y))
         return updated_points
     
-    def __init__(self, a, e, x, y, radius, color, mass):
+    def __init__(self, a, e, x, y, radius, color, mass): # For initializing planet properties
+        #in AU
         self.a = a
         self.e = e
         self.x = x
         self.y = y
+
         self.radius = radius
         self.color = color
         self.mass = mass
@@ -77,6 +80,7 @@ class Planet:
         self.x_vel = 0
         self.y_vel = -v_p
 
+    # Draw the planet and its orbit
     def draw(self, surface):
         x = self.x * self.SCALE + WIDTH / 2
         y = self.y * self.SCALE + HEIGHT / 2
@@ -87,6 +91,7 @@ class Planet:
         
         pygame.draw.circle(surface, self.color, (x, y), self.radius)
 
+    # Calculate gravitational attraction between two planets
     def attraction(self, other):
         other_x, other_y = other.x, other.y
         distance_x = other_x - self.x
@@ -102,6 +107,7 @@ class Planet:
         force_y = math.sin(theta) * force
         return force_x, force_y
 
+    # Update planet position based on gravitational forces
     def update_position(self, planets):
         total_fx = total_fy = 0
         for planet in planets:
@@ -119,6 +125,7 @@ class Planet:
         self.y += self.y_vel * self.TIMESTEP
         self.orbit.append((self.x, self.y))
 
+# Handle user input for zooming (Q - zoom in, E - zoom out)
 def input():
     global zoom_factor
     for event in pygame.event.get():
@@ -136,6 +143,7 @@ def input():
     # Clamp the zoom factor to prevent it from going too far
     zoom_factor = max(MIN_ZOOM, min(MAX_ZOOM, zoom_factor))
 
+# Main simulation
 def main():
     run = True
     clock = pygame.time.Clock()
@@ -143,6 +151,7 @@ def main():
     sun = Planet(0, 0, 0, 0, 10, YELLOW, 1.98892 * 10**30)
     sun.sun = True
 
+    # Initialize planets with real orbital parameters
     mercury = Planet(0.387, 0.2056, 0.387 * Planet.AU, 0, 4, GREY, 3.3010 * 10**23)
     mercury.y_vel = -47.87 * 1000
 
